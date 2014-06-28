@@ -121,8 +121,12 @@ void register_exit(void (*cb)(int ret))
 
 void exit_program(int ret)
 {
-    if (program_exit)
+    if (program_exit) {
+    	__android_log_print(ANDROID_LOG_ERROR, "exit_program", " program_exit start");
         program_exit(ret);
+    	__android_log_print(ANDROID_LOG_ERROR, "exit_program", " program_exit over");
+    }
+	__android_log_print(ANDROID_LOG_ERROR, "exit_TimeHut_transcode", " exit_TimeHut_transcode start");
     exit_TimeHut_transcode(ret);
 }
 
@@ -286,7 +290,7 @@ static int write_option(void *optctx, const OptionDef *po, const char *opt,
     void *dst = po->flags & (OPT_OFFSET | OPT_SPEC) ?
                 (uint8_t *)optctx + po->u.off : po->u.dst_ptr;
     int *dstcount;
-
+	__android_log_print(ANDROID_LOG_ERROR, "write_option start ", " opt= %s  : arg =%s", opt, arg);
     if (po->flags & OPT_SPEC) {
         SpecifierOpt **so = dst;
         char *p = strchr(opt, ':');
@@ -301,6 +305,7 @@ static int write_option(void *optctx, const OptionDef *po, const char *opt,
         char *str;
         str = av_strdup(arg);
         av_freep(dst);
+    	__android_log_print(ANDROID_LOG_ERROR, "write_option start OPT_STRING", " str= %s  : arg =%s", str, arg);
         *(char **)dst = str;
     } else if (po->flags & OPT_BOOL || po->flags & OPT_INT) {
         *(int *)dst = parse_number_or_die(opt, arg, OPT_INT64, INT_MIN, INT_MAX);
@@ -313,6 +318,7 @@ static int write_option(void *optctx, const OptionDef *po, const char *opt,
     } else if (po->flags & OPT_DOUBLE) {
         *(double *)dst = parse_number_or_die(opt, arg, OPT_DOUBLE, -INFINITY, INFINITY);
     } else if (po->u.func_arg) {
+    	__android_log_print(ANDROID_LOG_ERROR, "write_option start func_arg", " opt= %s  : arg =%s", opt, arg);
         int ret = po->u.func_arg(optctx, opt, arg);
         if (ret < 0) {
             av_log(NULL, AV_LOG_ERROR,
@@ -393,6 +399,7 @@ void parse_options(void *optctx, int argc, char **argv, const OptionDef *options
 
 int parse_optgroup(void *optctx, OptionGroup *g)
 {
+
     int i, ret;
 
     av_log(NULL, AV_LOG_DEBUG, "Parsing a group of options: %s %s.\n",
@@ -400,7 +407,6 @@ int parse_optgroup(void *optctx, OptionGroup *g)
 
     for (i = 0; i < g->nb_opts; i++) {
         Option *o = &g->opts[i];
-
         if (g->group_def->flags &&
             !(g->group_def->flags & o->opt->flags)) {
             av_log(NULL, AV_LOG_ERROR, "Option %s (%s) cannot be applied to "
@@ -709,6 +715,11 @@ int split_commandline(OptionParseContext *octx, int argc, char *argv[],
                       const OptionDef *options,
                       const OptionGroupDef *groups, int nb_groups)
 {
+
+	int i = 0;
+	for (i = 0; i < argc; i++) {
+		__android_log_print(ANDROID_LOG_ERROR, "split_commandline ", "no %d = %s", i, argv[i]);
+	}
     int optindex = 1;
     int dashdash = -2;
 
@@ -724,6 +735,8 @@ int split_commandline(OptionParseContext *octx, int argc, char *argv[],
         const OptionDef *po;
         int ret;
 
+    	__android_log_print(ANDROID_LOG_ERROR, "split_commandline start ", "octx: %d %s", optindex, opt);
+
         av_log(NULL, AV_LOG_DEBUG, "Reading option '%s' ...", opt);
 
         if (opt[0] == '-' && opt[1] == '-' && !opt[2]) {
@@ -732,6 +745,9 @@ int split_commandline(OptionParseContext *octx, int argc, char *argv[],
         }
         /* unnamed group separators, e.g. output filename */
         if (opt[0] != '-' || !opt[1] || dashdash+1 == optindex) {
+
+        	__android_log_print(ANDROID_LOG_ERROR, "split_commandline start ", "unnamed group separators, e.g. output filename : %s", opt);
+
             finish_group(octx, 0, opt);
             av_log(NULL, AV_LOG_DEBUG, " matched as %s.\n", groups[0].name);
             continue;

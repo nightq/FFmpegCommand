@@ -721,6 +721,7 @@ static void add_input_streams(OptionsContext *o, AVFormatContext *ic)
 
 static void assert_file_overwrite(const char *filename)
 {
+	__android_log_print(ANDROID_LOG_ERROR, "assert_file_overwrite", " filename %s", filename);
     if (file_overwrite && no_file_overwrite) {
         fprintf(stderr, "Error, both -y and -n supplied. Exiting.\n");
         exit_program(1);
@@ -728,6 +729,7 @@ static void assert_file_overwrite(const char *filename)
 
     if (!file_overwrite) {
         const char *proto_name = avio_find_protocol_name(filename);
+    	__android_log_print(ANDROID_LOG_ERROR, "assert_file_overwrite", " proto_name %s", proto_name);
         if (proto_name && !strcmp(proto_name, "file") && avio_check(filename, 0) == 0) {
             if (stdin_interaction && !no_file_overwrite) {
                 fprintf(stderr,"File '%s' already exists. Overwrite ? [y/N] ", filename);
@@ -796,6 +798,7 @@ static int open_input_file(OptionsContext *o, const char *filename)
     char *   audio_codec_name = NULL;
     char *subtitle_codec_name = NULL;
 
+	__android_log_print(ANDROID_LOG_ERROR, "open_in files", "start %s ==  %s", filename, o->format);
     if (o->format) {
         if (!(file_iformat = av_find_input_format(o->format))) {
             av_log(NULL, AV_LOG_FATAL, "Unknown input format: '%s'\n", o->format);
@@ -1699,6 +1702,7 @@ static int configure_complex_filters(void)
 {
     int i, ret = 0;
 
+	__android_log_print(ANDROID_LOG_ERROR, "configure_complex_filters", "nb_filtergraphs = %d", nb_filtergraphs);
     for (i = 0; i < nb_filtergraphs; i++)
         if (!filtergraphs[i]->graph &&
             (ret = configure_filtergraph(filtergraphs[i])) < 0)
@@ -1716,17 +1720,20 @@ static int open_output_file(OptionsContext *o, const char *filename)
     InputStream  *ist;
     AVDictionary *unused_opts = NULL;
     AVDictionaryEntry *e = NULL;
+//////////////////***********error
 
+	__android_log_print(ANDROID_LOG_ERROR, "open_output_file", "open_output_file = %s", filename);
     if (configure_complex_filters() < 0) {
         av_log(NULL, AV_LOG_FATAL, "Error configuring filters.\n");
         exit_program(1);
     }
-
+	__android_log_print(ANDROID_LOG_ERROR, "open_output_file", "open_output_file1 = %s", filename);
     if (o->stop_time != INT64_MAX && o->recording_time != INT64_MAX) {
         o->stop_time = INT64_MAX;
         av_log(NULL, AV_LOG_WARNING, "-t and -to cannot be used together; using -t.\n");
     }
 
+	__android_log_print(ANDROID_LOG_ERROR, "open_output_file", "open_output_file2 = %s", filename);
     if (o->stop_time != INT64_MAX && o->recording_time == INT64_MAX) {
         int64_t start_time = o->start_time == AV_NOPTS_VALUE ? 0 : o->start_time;
         if (o->stop_time <= start_time) {
@@ -1737,7 +1744,9 @@ static int open_output_file(OptionsContext *o, const char *filename)
         }
     }
 
+	__android_log_print(ANDROID_LOG_ERROR, "open_output_file", " nb_output_files = %d open_output_file = %s", nb_output_files, filename);
     GROW_ARRAY(output_files, nb_output_files);
+	__android_log_print(ANDROID_LOG_ERROR, "open_output_file", "open_output_file nb_output_files = %d, = %d", nb_output_files, filename);
     of = av_mallocz(sizeof(*of));
     if (!of)
         exit_program(1);
@@ -1750,6 +1759,7 @@ static int open_output_file(OptionsContext *o, const char *filename)
     of->shortest       = o->shortest;
     av_dict_copy(&of->opts, o->g->format_opts, 0);
 
+	__android_log_print(ANDROID_LOG_ERROR, "open_output_file", "open_output_file4");
     if (!strcmp(filename, "-"))
         filename = "pipe:";
 
@@ -1759,6 +1769,7 @@ static int open_output_file(OptionsContext *o, const char *filename)
         exit_program(1);
     }
 
+	__android_log_print(ANDROID_LOG_ERROR, "open_output_file", "open_output_file5");
     of->ctx = oc;
     if (o->recording_time != INT64_MAX)
         oc->duration = o->recording_time;
@@ -2628,6 +2639,7 @@ static int open_files(OptionGroupList *l, const char *inout,
 {
     int i, ret;
 
+	__android_log_print(ANDROID_LOG_ERROR, "open_files", "l->nb_groups = %d", l->nb_groups);
     for (i = 0; i < l->nb_groups; i++) {
         OptionGroup *g = &l->groups[i];
         OptionsContext o;
@@ -2641,6 +2653,8 @@ static int open_files(OptionGroupList *l, const char *inout,
                    "%s.\n", inout, g->arg);
             return ret;
         }
+
+    	__android_log_print(ANDROID_LOG_ERROR, "open_files", "start %s == %s", inout, g->arg);
 
         av_log(NULL, AV_LOG_DEBUG, "Opening an %s file: %s.\n", inout, g->arg);
         ret = open_file(&o, g->arg);
@@ -2656,6 +2670,25 @@ static int open_files(OptionGroupList *l, const char *inout,
     return 0;
 }
 
+void release (OptionGroup optionGroup) {
+	optionGroup.nb_opts = 0;
+//	free(optionGroup.group_def);
+//	free(optionGroup.arg);
+	free(optionGroup.opts);
+	free(optionGroup.codec_opts);
+	free(optionGroup.format_opts);
+	free(optionGroup.resample_opts);
+	free(optionGroup.sws_opts);
+	free(optionGroup.swr_opts);
+}
+
+void releaseCmd (OptionParseContext octx) {
+	free(octx.groups);
+	release(octx.global_opts);
+	release(octx.cur_group);
+    octx.nb_groups = 0;
+}
+
 int ffmpeg_parse_options(int argc, char **argv)
 {
     OptionParseContext octx;
@@ -2663,9 +2696,15 @@ int ffmpeg_parse_options(int argc, char **argv)
     int ret;
     memset(&octx, 0, sizeof(octx));
 
+	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_parse_options", "octx: %d %d nb_output_files%d", octx.groups, octx.nb_groups, nb_output_files);
+	releaseCmd(octx);
+
     /* split the commandline into an internal representation */
     ret = split_commandline(&octx, argc, argv, options, groups,
                             FF_ARRAY_ELEMS(groups));
+
+	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_parse_options", "octx: %d %d nb_output_files%d", octx.groups, octx.nb_groups, nb_output_files);
+
     if (ret < 0) {
         av_log(NULL, AV_LOG_FATAL, "Error splitting the argument list: ");
         goto fail;
@@ -2678,7 +2717,7 @@ int ffmpeg_parse_options(int argc, char **argv)
         goto fail;
     }
 
-	__android_log_print(ANDROID_LOG_ERROR, "open_files", "start");
+	__android_log_print(ANDROID_LOG_ERROR, "open_in files", "start");
     /* open input files */
     ret = open_files(&octx.groups[GROUP_INFILE], "input", open_input_file);
     if (ret < 0) {
@@ -2686,6 +2725,7 @@ int ffmpeg_parse_options(int argc, char **argv)
         goto fail;
     }
 
+	__android_log_print(ANDROID_LOG_ERROR, "open_out files", "start");
     /* open output files */
     ret = open_files(&octx.groups[GROUP_OUTFILE], "output", open_output_file);
     if (ret < 0) {

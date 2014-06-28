@@ -431,12 +431,15 @@ static void ffmpeg_cleanup(int ret)
 {
     int i, j;
 
+	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup", " ffmpeg_cleanup start");
     if (do_benchmark) {
         int maxrss = getmaxrss() / 1024;
         printf("bench: maxrss=%ikB\n", maxrss);
     }
 
+	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup", " ffmpeg_cleanup start1");
     for (i = 0; i < nb_filtergraphs; i++) {
+    	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup", " ffmpeg_cleanup start i= %d", i);
         FilterGraph *fg = filtergraphs[i];
         avfilter_graph_free(&fg->graph);
         for (j = 0; j < fg->nb_inputs; j++) {
@@ -453,21 +456,37 @@ static void ffmpeg_cleanup(int ret)
 
         av_freep(&filtergraphs[i]);
     }
+	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup", " ffmpeg_cleanup start3");
     av_freep(&filtergraphs);
 
+	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup", " ffmpeg_cleanup start4");
     av_freep(&subtitle_out);
 
+	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup", " ffmpeg_cleanup start5 %d %d %d", nb_output_files, sizeof(output_files), sizeof(output_files[0]));
     /* close files */
     for (i = 0; i < nb_output_files; i++) {
         OutputFile *of = output_files[i];
+    	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup", " ffmpeg_cleanup start * %d", output_files[i]);
+        if (output_files[i] ==NULL) {
+        	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup", " ffmpeg_cleanup output_files[i] ==NULL ");
+        	continue;
+        }
         AVFormatContext *s = of->ctx;
+		if (s == NULL) {
+			__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup",
+					" s ==NULL ");
+			continue;
+		}
         if (s && s->oformat && !(s->oformat->flags & AVFMT_NOFILE) && s->pb)
             avio_close(s->pb);
+		__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup", " s %d ",
+				s);
         avformat_free_context(s);
         av_dict_free(&of->opts);
 
         av_freep(&output_files[i]);
     }
+	__android_log_print(ANDROID_LOG_ERROR, "ffmpeg_cleanup", " ffmpeg_cleanup start6");
     for (i = 0; i < nb_output_streams; i++) {
         OutputStream *ost = output_streams[i];
         AVBitStreamFilterContext *bsfc = ost->bitstream_filters;
@@ -3805,6 +3824,7 @@ int transcode_video_for_timehut(int argc, char **argv)
 
     show_banner(argc, argv, options);
 
+	__android_log_print(ANDROID_LOG_ERROR, "nb_output_files  nb_input_files", "nb_output_files = %d nb_input_files = %d start", nb_output_files, nb_input_files);
     term_init();
     /* parse options and open all input/output files */
     ret = ffmpeg_parse_options(argc, argv);
@@ -3812,6 +3832,7 @@ int transcode_video_for_timehut(int argc, char **argv)
         exit_program(1);
 
 
+	__android_log_print(ANDROID_LOG_ERROR, "nb_output_files  nb_input_files", "nb_output_files = %d nb_input_files = %d", nb_output_files, nb_input_files);
     if (nb_output_files <= 0 && nb_input_files == 0) {
         show_usage();
         av_log(NULL, AV_LOG_WARNING, "Use -h to get full help or, even better, run 'man %s'\n", program_name);
@@ -3984,6 +4005,42 @@ void *transcodeVideoForTimehutForJni(void *args) {
  */
 void dealCmd (JNIEnv* env,
 		jobject this, jobjectArray stringArray) {
+	//init
+    nb_input_streams = 0;
+	nb_input_files = 0;
+	nb_output_streams = 0;
+	nb_output_files = 0;
+
+	nb_filtergraphs = 0;
+
+	free(input_streams);
+	free(input_files);
+	free(output_streams);
+	free(output_files);
+	free(filtergraphs);
+//	free(vstats_filename);
+//	free(progress_avio);
+//	audio_drift_threshold = 0;
+//	dts_delta_threshold = 0;
+//	dts_error_threshold = 0;
+//	audio_volume = 0;
+//	audio_sync_method = 0;
+//	video_sync_method = 0;
+//	do_benchmark = 0;
+//	do_benchmark_all = 0;
+//	do_deinterlace = 0;
+//	do_hex_dump = 0;
+//	do_pkt_dump = 0;
+//	copy_ts = 0;
+//	copy_tb = 0;
+//	debug_ts = 0;
+//	exit_on_error = 0;
+//	print_stats = 0;
+//	qp_hist = 0;
+//	stdin_interaction = 0;
+//	frame_bits_per_raw_sample = 0;
+//	max_error_rate = 0;
+
 	__android_log_print(ANDROID_LOG_ERROR, "dealCmd", "start");
 	length = (*env)->GetArrayLength(env, stringArray);
 	jstring jstrElement = 0;
@@ -4000,7 +4057,7 @@ void dealCmd (JNIEnv* env,
 }
 
 //---定义java函数，为了Java中方法调用-----
-void Java_nightq_ffmpeg_commang_MainActivity_transcodeVideoForTimehutJni(JNIEnv* env,
+void Java_nightq_ffmpeg_command_FfmpegTranscodeVideoService_transcodeVideoForTimehutJni(JNIEnv* env,
 		jobject this, jobjectArray stringArray) {
 	//初始化
 //	localEnv = env;

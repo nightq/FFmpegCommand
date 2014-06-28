@@ -8,9 +8,10 @@
         android:id="@+id/editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="ffmpeg -y -i /sdcard/test4.mp4 -strict experimental -c:a copy -vf scale=640:360 -r 30 -b:v 2097k /sdcard/out.mp4 "
+        android:text="ffmpeg -y -i /sdcard/test4.mp4 -strict experimental -c:a copy -vf scale=640:360 -r 30 -b:v 2097k /sdcard/out.mp4  "
         android:ems="10" >
- <!-- -->
+ <!-- ffmpeg -y -i /storage/extSdCard/test4.mp4 -strict experimental -c:a copy -vf scale=640:360 -r 30 -b:v 2097k /storage/extSdCard/out.mp4
+ 					/sdcard/test4.mp4 -strict experimental -c:a copy -vf scale=640:360 -r 30 -b:v 2097k /sdcard/out.mp4  -->
         <requestFocus />
     </EditText>
 

@@ -22,7 +22,7 @@
 					<folderInfo id="com.android.toolchain.gcc.184087803.1398701252" name="/" resourcePath="">
 						<toolChain id="com.android.toolchain.gcc.736290872" name="com.android.toolchain.gcc" nonInternalBuilderId="com.android.builder" superClass="com.android.toolchain.gcc">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF" id="com.android.targetPlatform.497398094" isAbstract="false" superClass="com.android.targetPlatform"/>
-							<builder arguments="NDK_DEBUG=1" autoBuildTarget="" buildPath="${workspace_loc:/FFmpegCommand/Default}" id="com.android.builder.784254406" incrementalBuildTarget="" name="Android Builder" superClass="com.android.builder"/>
+							<builder autoBuildTarget="" buildPath="${workspace_loc:/FFmpegCommand/Default}" cleanBuildTarget="clean" command="ndk-build" id="org.eclipse.cdt.build.core.internal.builder.434509306" incrementalBuildTarget="" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="org.eclipse.cdt.build.core.internal.builder"/>
 							<tool id="com.android.gcc.compiler.1030930326" name="Android GCC Compiler" superClass="com.android.gcc.compiler">
 								<inputType id="com.android.gcc.inputType.2085157312" superClass="com.android.gcc.inputType"/>
 							</tool>
