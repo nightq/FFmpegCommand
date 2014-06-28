@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -44,7 +45,9 @@ public class MainActivity extends Activity {
 			public void logTranscodeVideo(final String log) {
 				// TODO Auto-generated method stub
 				content = log;
-				handler.sendEmptyMessage(0);
+				Message msg = handler.obtainMessage();
+				msg.obj = log;
+				handler.sendMessage(msg);
 			}
 		});
 		
@@ -56,11 +59,6 @@ public class MainActivity extends Activity {
 //
 //					@Override
 //					public void run() {
-				
-				new Thread(new Runnable() {
-					
-					@Override
-					public void run() {
 						String[] array = editText.getText().toString()
 								.split(" ");
 						if (FfmpegTranscodeVideoService.isFinished()) {
@@ -69,18 +67,12 @@ public class MainActivity extends Activity {
 									.transcodeVideoForTimehutLocal(array)) {
 								Toast.makeText(MainActivity.this, "还没转完呢",
 										Toast.LENGTH_SHORT).show();
+							} else {
+								textView.append("");
 							}
 						} else {
-							runOnUiThread(new Runnable() {
-								
-								@Override
-								public void run() {
-									Toast.makeText(MainActivity.this, "还没转完呢", Toast.LENGTH_SHORT).show();
-								}
-							});
+							Toast.makeText(MainActivity.this, "还没转完呢", Toast.LENGTH_SHORT).show();
 						}
-					}
-				}).start();
 //					}
 //				});
 			}
@@ -90,7 +82,7 @@ public class MainActivity extends Activity {
 
 	final Handler handler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
-			textView.setText(content);
+			textView.append((String)msg.obj);
 		};
 	};
 }
