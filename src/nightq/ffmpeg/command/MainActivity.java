@@ -44,7 +44,7 @@ public class MainActivity extends Activity {
 			public void logTranscodeVideo(final String log) {
 				// TODO Auto-generated method stub
 				content = log;
-//				handler.
+				handler.sendEmptyMessage(0);
 			}
 		});
 		
