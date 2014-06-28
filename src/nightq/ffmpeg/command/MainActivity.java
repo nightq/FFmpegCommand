@@ -1,5 +1,6 @@
 package nightq.ffmpeg.command;
 
+import nightq.ffmpeg.command.FfmpegTranscodeVideoService.TranscodeVideoLogListener;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Environment;
@@ -67,14 +68,14 @@ public class MainActivity extends Activity {
 							if (!new FfmpegTranscodeVideoService()
 									.transcodeVideoForTimehutLocal(array)) {
 								Toast.makeText(MainActivity.this, "还没转完呢",
-										Toast.LENGTH_SHORT);
+										Toast.LENGTH_SHORT).show();
 							}
 						} else {
 							runOnUiThread(new Runnable() {
 								
 								@Override
 								public void run() {
-									Toast.makeText(MainActivity.this, "还没转完呢", Toast.LENGTH_SHORT);
+									Toast.makeText(MainActivity.this, "还没转完呢", Toast.LENGTH_SHORT).show();
 								}
 							});
 						}
