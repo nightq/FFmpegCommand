@@ -68,7 +68,7 @@ public class MainActivity extends Activity {
 								Toast.makeText(MainActivity.this, "还没转完呢",
 										Toast.LENGTH_SHORT).show();
 							} else {
-								textView.append("");
+								textView.setText("");
 							}
 						} else {
 							Toast.makeText(MainActivity.this, "还没转完呢", Toast.LENGTH_SHORT).show();
