@@ -62,7 +62,7 @@ public class MainActivity extends Activity {
 				// TODO Auto-generated method stub
 				Log.e("NIGHTQ", "onCompleted log = " + log);
 				Message msg = handler.obtainMessage();
-				msg.obj = log;
+				msg.obj = "onCompleted log = " + log;
 				handler.sendMessage(msg);
 			}
 
