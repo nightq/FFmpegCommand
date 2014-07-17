@@ -43,7 +43,7 @@ public class MainActivity extends Activity {
 		
 		getCacheDir();
 		getExternalCacheDir();
-		
+		FfmpegTranscodeVideoService.context = MainActivity.this;
 		FfmpegTranscodeVideoService.setTranscodeVideoLogListener(new TranscodeVideoLogListener() {
 			
 			@Override

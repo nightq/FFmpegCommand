@@ -1,11 +1,13 @@
 package nightq.ffmpeg.command;
 
+import android.content.Context;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
  
 
 import helper.DateHelper;
+import helper.StorageUtils;
 
 import java.io.File;
 import java.util.Date;
@@ -28,6 +30,9 @@ public class FfmpegTranscodeVideoService {
 	public static TranscodeVideoLogListener transcodeVideoLogListener;
 	private static Vector<TranscodeVideoNotifyListener> transcodeVideoNotifyListenerList = new Vector<TranscodeVideoNotifyListener>();
 
+	
+	public static Context context;
+	
     /**
      * just for uploadervideocontroller，必须
      * @param transcodeVideoLogListener
@@ -113,11 +118,12 @@ public class FfmpegTranscodeVideoService {
     public static boolean setTranscodeCmd (String localPath) {
         FfmpegTranscodeVideoService.localPath = localPath;
         exeCmd = String.format(CMD_FRONT, localPath);
-        if ((oldWidth > oldHeight && oldHeight > VIDEO_MAX_SIDE)) {
-            exeCmd = exeCmd + "-vf scale=" + getEvenLength(oldHeight, oldWidth) + ":720 ";
-        } else if ((oldWidth < oldHeight && oldWidth > VIDEO_MAX_SIDE)) {
+        if ((oldWidth > oldHeight && oldWidth > VIDEO_MAX_SIDE)) {
             exeCmd = exeCmd + "-vf scale=" + "720:" + getEvenLength(oldHeight, oldWidth) + " ";
+        } else if ((oldWidth < oldHeight && oldHeight > VIDEO_MAX_SIDE)) {
+            exeCmd = exeCmd + "-vf scale=" + getEvenLength(oldHeight, oldWidth) + ":720 ";
         }
+        
         String output = getDestTmpVideo(localPath);
         if (TextUtils.isEmpty(output)) {
             exeCmd = null;
@@ -141,7 +147,8 @@ public class FfmpegTranscodeVideoService {
      * @return
      */
     public static String getDestTmpVideo (String localPath) {
-    	return Environment.getExternalStorageDirectory() + "/ffmpegcpmmandtest/" + localPath.hashCode() + DEST_TMP_VIDEO_BEH;
+    	String folder = StorageUtils.getCacheDirectory(context).getAbsolutePath();
+    	return folder + "/" + localPath.hashCode() + DEST_TMP_VIDEO_BEH;
 //        return SC.getTmpUploadFilePathWithoutBeh(String
 //                .format("%s",
 //                        StringHelper.MD5(localPath))) + DEST_TMP_VIDEO_BEH;
@@ -153,7 +160,8 @@ public class FfmpegTranscodeVideoService {
      * @return
      */
     public static String getDestVideo (String localPath) {
-    	return Environment.getExternalStorageDirectory() + "/ffmpegcpmmandtest/" + localPath.hashCode() + DEST_VIDEO_BEH;
+    	String folder = StorageUtils.getCacheDirectory(context).getAbsolutePath();
+    	return folder + "/" + localPath.hashCode() + DEST_VIDEO_BEH;
 //        return SC.getTmpUploadFilePathWithoutBeh(String
 //                .format("%s",
 //                        StringHelper.MD5(localPath))) + DEST_VIDEO_BEH;
@@ -219,6 +227,7 @@ public class FfmpegTranscodeVideoService {
      * @param log
      */
 	public void log(String log) {
+        Log.e("nightq", "log = " + log);
         if (isGetInfo) {
             //取信息
             if (startDuration) {
