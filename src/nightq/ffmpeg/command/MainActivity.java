@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -29,6 +30,8 @@ public class MainActivity extends Activity {
 	EditText editText;
 	TextView textView;
 	String content;
+	
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -40,7 +43,6 @@ public class MainActivity extends Activity {
 		HandlerThread backThread = new HandlerThread("trans");
 		backThread.start();
 		final Handler backHandler = new Handler(backThread.getLooper());
-		
 		getCacheDir();
 		getExternalCacheDir();
 		FfmpegTranscodeVideoService.context = MainActivity.this;
@@ -59,12 +61,18 @@ public class MainActivity extends Activity {
 			public void onCompleted(boolean log) {
 				// TODO Auto-generated method stub
 				Log.e("NIGHTQ", "onCompleted log = " + log);
+				Message msg = handler.obtainMessage();
+				msg.obj = log;
+				handler.sendMessage(msg);
 			}
 
 			@Override
 			public void onProgress(int progress) {
 				// TODO Auto-generated method stub
 				Log.e("NIGHTQ", "progress = " + progress);
+				Message msg = handler.obtainMessage();
+				msg.obj = "progress = " + progress;
+				handler.sendMessage(msg);
 			}
 		});
 		
@@ -92,10 +100,19 @@ public class MainActivity extends Activity {
 									+ Thread.currentThread().getId());
 							if (new FfmpegTranscodeVideoService()
 									.transcodeVideoForTimehutLocal("nothing", destPath) == FfmpegTranscodeVideoService.RESULT_START_TRANSCODE_SUCCESS) {
-								Toast.makeText(MainActivity.this, " 开始转码失败",
-										Toast.LENGTH_SHORT).show();
+								runOnUiThread(new Runnable() {
+									
+									@Override
+									public void run() {
+										// TODO Auto-generated method stub
+										Toast.makeText(MainActivity.this, " 成功开始转码",
+												Toast.LENGTH_SHORT).show();
+										textView.setText("");
+									}
+								});
+//								textView.setText("");
 							} else {
-								textView.setText("");
+//								textView.setText("");
 							}
 						} else {
 							Toast.makeText(MainActivity.this, " 失败开始",
@@ -277,8 +294,32 @@ public class MainActivity extends Activity {
 	final Handler handler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 			textView.append((String)msg.obj);
+            showToast(MainActivity.this, "transcode progress=" + (String)msg.obj);
 		};
 	};
+	
+	
+	private static Toast toast = null;
+
+	public static void showToast(Context context, CharSequence text) {
+		try {
+			if (toast == null) {
+				toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+			} else {
+				toast.setText(text);
+			}
+			toast.show();
+		} catch (Exception e) {
+            try {
+//                LogForServer.e("@ishowToast", "\n first Thread current = " + Thread.currentThread().getName());
+                toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+                toast.show();
+            } catch (Exception ee) {
+//                LogForServer.e("@ishowToast", "\n second Thread current = " + Thread.currentThread().getName());
+            }
+		}
+	}
+
 	
 	
 	public boolean assetsCopyData(String strAssetsFilePath, String strDesFilePath){
@@ -306,8 +347,12 @@ public class MainActivity extends Activity {
 	           int nLen = 0 ;
 	           
 	           byte[] buff = new byte[1024*1];
+	           long total = 0;
 	           while((nLen = inputStream.read(buff)) > 0){
 	              outputStream.write(buff, 0, nLen);
+	              total += nLen;
+	              Log.e("test copy", "progress=" + total);
+	              showToast(MainActivity.this, "progress=" + total);
 	           }
 	           
 	           //���
