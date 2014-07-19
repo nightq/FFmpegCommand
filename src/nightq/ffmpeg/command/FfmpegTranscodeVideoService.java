@@ -89,7 +89,9 @@ public class FfmpegTranscodeVideoService {
             System.loadLibrary("avdevice-55");
             System.loadLibrary("postproc-52");
             System.loadLibrary("ffmpeg");
+        	MainActivity.canFFmpeg = true;
         } catch (UnsatisfiedLinkError e) {
+        	MainActivity.canFFmpeg = false;
             Log.d("UnsatisfiedLinkError", "Unsatisfied Link error: " + e.toString());
         }
 	}
@@ -358,7 +360,7 @@ public class FfmpegTranscodeVideoService {
      * @return
      */
 	public synchronized int transcodeVideoForTimehutLocal(String uploadInterfaceId, String localPath) {
-		if (isRunning) {
+		if (isRunning || !MainActivity.canFFmpeg) {
 			return RESULT_START_TRANSCODE_FAILED;
 		}
 		isRunning = true;
