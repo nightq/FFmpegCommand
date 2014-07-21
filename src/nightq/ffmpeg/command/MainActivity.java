@@ -92,7 +92,9 @@ public class MainActivity extends Activity {
 				@Override
 				public void run() {
 					if (!canFFmpeg) {
-						new Dialog(MainActivity.this).show();
+						Dialog dlg = new Dialog(MainActivity.this);
+						dlg.setTitle("can not ffmpeg");
+						dlg.show();
 						return;
 					}
 					String destPath = Environment.getExternalStorageDirectory() + "/test.mp4";
@@ -106,7 +108,7 @@ public class MainActivity extends Activity {
 								+ Thread.currentThread().getId());
 						if (new FfmpegTranscodeVideoService()
 								.transcodeVideoForTimehutLocal("nothing",
-										destPath) == FfmpegTranscodeVideoService.RESULT_START_TRANSCODE_SUCCESS) {
+										destPath + "saf") == FfmpegTranscodeVideoService.RESULT_START_TRANSCODE_SUCCESS) {
 							runOnUiThread(new Runnable() {
 
 								@Override
@@ -121,7 +123,9 @@ public class MainActivity extends Activity {
 							// textView.setText("");
 						} else {
 
-							new Dialog(MainActivity.this).show();
+							Dialog dlg = new Dialog(MainActivity.this);
+							dlg.setTitle("can not start ffmpeg");
+							dlg.show();
 							return;
 							// textView.setText("");
 						}

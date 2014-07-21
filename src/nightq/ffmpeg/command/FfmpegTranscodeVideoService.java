@@ -230,6 +230,11 @@ public class FfmpegTranscodeVideoService {
      */
 	public void log(String log) {
         Log.e("nightq", "log = " + log);
+        
+        if (transcodeVideoLogListener != null) {
+            transcodeVideoLogListener.logTranscodeVideo(log);
+        }
+        
         if (isGetInfo) {
             //取信息
             if (startDuration) {
