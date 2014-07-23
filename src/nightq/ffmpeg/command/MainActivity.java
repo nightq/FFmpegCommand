@@ -93,7 +93,7 @@ public class MainActivity extends Activity {
 				public void run() {
 					if (!canFFmpeg) {
 						Dialog dlg = new Dialog(MainActivity.this);
-						dlg.setTitle("can not ffmpeg");
+						dlg.setTitle("can not ffmpeg" + FfmpegTranscodeVideoService.error);
 						dlg.show();
 						return;
 					}

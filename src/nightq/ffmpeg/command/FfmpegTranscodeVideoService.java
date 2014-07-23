@@ -26,6 +26,7 @@ public class FfmpegTranscodeVideoService {
 	private native void transcodeVideoForTimehutJni(String[] array);
 
     public static String currentTranscodeVideoId = null;
+    public static String error = null;
 
 	public static TranscodeVideoLogListener transcodeVideoLogListener;
 	private static Vector<TranscodeVideoNotifyListener> transcodeVideoNotifyListenerList = new Vector<TranscodeVideoNotifyListener>();
@@ -90,9 +91,11 @@ public class FfmpegTranscodeVideoService {
             System.loadLibrary("postproc-52");
             System.loadLibrary("ffmpeg");
         	MainActivity.canFFmpeg = true;
+//        	throw new UnsatisfiedLinkError("sdfsdf");
         } catch (UnsatisfiedLinkError e) {
         	MainActivity.canFFmpeg = false;
-            Log.d("UnsatisfiedLinkError", "Unsatisfied Link error: " + e.toString());
+        	error = e.getMessage();
+            Log.e("UnsatisfiedLinkError", "Unsatisfied Link error: " + e.toString() + Thread.currentThread().getName());
         }
 	}
 
