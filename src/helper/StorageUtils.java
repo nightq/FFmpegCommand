@@ -15,15 +15,18 @@
  *******************************************************************************/
 package helper;
 
+import static android.os.Environment.MEDIA_MOUNTED;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.util.Log;
-
-import java.io.File;
-import java.io.IOException;
-
-import static android.os.Environment.MEDIA_MOUNTED;
 
 /**
  * Provides application storage paths
@@ -140,4 +143,54 @@ public final class StorageUtils {
 		int perm = context.checkCallingOrSelfPermission(EXTERNAL_STORAGE_PERMISSION);
 		return perm == PackageManager.PERMISSION_GRANTED;
 	}
+	
+	public static boolean assetsCopyData(Context context, String strAssetsFilePath, String strDesFilePath){
+	       boolean bIsSuc = true;
+	       InputStream inputStream = null;
+	       OutputStream outputStream = null;
+	       
+	       File file = new File(strDesFilePath);
+	       if (!file.exists()){
+	           try {
+	              file.createNewFile();
+//	              Runtime.getRuntime().exec("chmod 766 " + file);
+	           } catch (IOException e) {
+	              bIsSuc = false;
+	           }
+	           
+	       }else{//����
+	           return true;
+	       }
+	       
+	       try {
+	           inputStream = context.getAssets().open(strAssetsFilePath);
+	           outputStream = new FileOutputStream(file);
+	           
+	           int nLen = 0 ;
+	           
+	           byte[] buff = new byte[1024*1];
+	           while((nLen = inputStream.read(buff)) > 0){
+	              outputStream.write(buff, 0, nLen);
+	           }
+	            
+	       } catch (IOException e) {
+	           bIsSuc = false;
+	       }finally{
+	           try {
+	              if (outputStream != null){
+	                  outputStream.close();
+	              }
+	              
+	              if (inputStream != null){
+	                  inputStream.close();
+	              }
+	           } catch (IOException e) {
+	              bIsSuc = false;
+	           }
+	           
+	       }
+	       
+	       return bIsSuc;
+	    }
+	
 }
